@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmarking de Hospitalidad | Top 10 Global vs Anáhuac</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-[#1b2838] text-white p-8 font-sans min-h-screen">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-3xl font-bold text-gray-100">Análisis de Posicionamiento Global 2026</h1>
+            <p class="text-slate-400 mt-2">Comparativa de métricas de branding: Líderes Globales vs. Universidad Anáhuac Cancún</p>
+        </header>
+
+        <!-- Contenedor de la gráfica -->
+        <div class="bg-[#2a475e] p-6 rounded-lg shadow-lg relative">
+            <canvas id="benchmarkChart" height="120"></canvas>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <p class="text-xs text-slate-500 font-semibold tracking-widest uppercase">Haz clic en las barras para más detalles</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Tus credenciales exactas inyectadas
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs9sSEhoYgaNQ6jODGMh73OZfB4Lfq46g",
+            authDomain: "escuelas-de-hospitalidad.firebaseapp.com",
+            projectId: "escuelas-de-hospitalidad",
+            storageBucket: "escuelas-de-hospitalidad.firebasestorage.app",
+            messagingSenderId: "398359418156",
+            appId: "1:398359418156:web:4a13910029cc75b7f20889"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function renderChart() {
+            const querySnapshot = await getDocs(collection(db, "schools"));
+            const schoolsData = [];
+            
+            querySnapshot.forEach((doc) => {
+                schoolsData.push(doc.data());
+            });
+
+            // Ordenamos para que Anáhuac quede visualmente en un lugar destacado (o alfabéticamente)
+            schoolsData.sort((a, b) => b.metrics.reputacionEmpleadores - a.metrics.reputacionEmpleadores);
+
+            const ctx = document.getElementById('benchmarkChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['UX Web e Identidad', 'Promesa de Valor', 'Engagement Redes', 'Reputación Empleadores', 'Autoridad SEO'],
+                    datasets: schoolsData.map(school => ({
+                        label: school.name,
+                        data: [
+                            school.metrics.uxWeb, 
+                            school.metrics.promesaValor, 
+                            school.metrics.engagementRedes, 
+                            school.metrics.reputacionEmpleadores, 
+                            school.metrics.autoridadSeo
+                        ],
+                        backgroundColor: school.brandColor,
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }))
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#e2e8f0', font: { size: 14 } } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', font: { size: 13 } } },
+                        tooltip: { backgroundColor: '#0f172a', titleColor: '#38bdf8', bodyColor: '#f1f5f9', padding: 12 }
+                    }
+                }
+            });
+        }
+
+        renderChart();
+    </script>
+</body>
+</html>
