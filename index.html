@@ -21,7 +21,7 @@
         </div>
         
         <div class="mt-4 text-center">
-            <p class="text-xs text-slate-500 font-semibold tracking-widest uppercase">Haz clic en las barras para más detalles</p>
+            <p class="text-xs text-slate-500 font-semibold tracking-widest uppercase">Haz clic en las leyendas superiores para filtrar escuelas</p>
         </div>
     </div>
 
@@ -29,7 +29,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Tus credenciales exactas inyectadas
+        // Tus credenciales de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAs9sSEhoYgaNQ6jODGMh73OZfB4Lfq46g",
             authDomain: "escuelas-de-hospitalidad.firebaseapp.com",
@@ -42,6 +42,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Paleta de colores de respaldo en caso de que falte en Firebase
+        const colorPalette = {
+            "EHL": "#3b82f6",          // Azul
+            "Les Roches": "#8b5cf6",   // Morado
+            "SHMS": "#10b981",         // Verde
+            "Anáhuac Cancún": "#f97316", // Naranja (Destacado)
+            "César Ritz": "#0ea5e9",   // Celeste
+            "UNLV": "#ef4444"          // Rojo
+        };
+
         async function renderChart() {
             const querySnapshot = await getDocs(collection(db, "schools"));
             const schoolsData = [];
@@ -50,8 +60,8 @@
                 schoolsData.push(doc.data());
             });
 
-            // Ordenamos para que Anáhuac quede visualmente en un lugar destacado (o alfabéticamente)
-            schoolsData.sort((a, b) => b.metrics.reputacionEmpleadores - a.metrics.reputacionEmpleadores);
+            // Ordenamos los datos alfabéticamente
+            schoolsData.sort((a, b) => a.name.localeCompare(b.name));
 
             const ctx = document.getElementById('benchmarkChart').getContext('2d');
             
@@ -68,31 +78,11 @@
                             school.metrics.reputacionEmpleadores, 
                             school.metrics.autoridadSeo
                         ],
-                        backgroundColor: school.brandColor,
+                        // Si el color viene de Firebase lo usa, si no, usa nuestra paleta de respaldo, o gris por defecto.
+                        backgroundColor: school.brandColor || colorPalette[school.name] || '#94a3b8',
                         borderWidth: 0,
                         borderRadius: 4
                     }))
                 },
-               options: {
+                options: {
                     indexAxis: 'y',
-                    responsive: true,
-                    interaction: {
-                        mode: 'y',
-                        intersect: false
-                    },
-                    scales: {
-                        x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
-                        y: { grid: { display: false }, ticks: { color: '#e2e8f0', font: { size: 14 } } }
-                    },
-                    plugins: {
-                        legend: { labels: { color: '#f8fafc', font: { size: 13 } } },
-                        tooltip: { backgroundColor: '#0f172a', titleColor: '#38bdf8', bodyColor: '#f1f5f9', padding: 12 }
-                    }
-                }
-            });
-        }
-
-        renderChart();
-    </script>
-</body>
-</html>
