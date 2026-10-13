@@ -42,12 +42,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Paleta de colores de respaldo en caso de que falte en Firebase
+        // Paleta de colores locales
         const colorPalette = {
             "EHL": "#3b82f6",          // Azul
             "Les Roches": "#8b5cf6",   // Morado
             "SHMS": "#10b981",         // Verde
-            "Anáhuac Cancún": "#f97316", // Naranja (Destacado)
+            "Anáhuac Cancún": "#f97316", // Naranja
             "César Ritz": "#0ea5e9",   // Celeste
             "UNLV": "#ef4444"          // Rojo
         };
@@ -79,7 +79,8 @@
                                 school.metrics.reputacionEmpleadores, 
                                 school.metrics.autoridadSeo
                             ],
-                            backgroundColor: school.brandColor || colorPalette[school.name] || '#94a3b8',
+                            // Limpiamos los espacios del nombre con trim() y forzamos el color de la paleta
+                            backgroundColor: colorPalette[school.name.trim()] || '#94a3b8',
                             borderWidth: 0,
                             borderRadius: 4
                         }))
@@ -88,8 +89,10 @@
                         indexAxis: 'y',
                         responsive: true,
                         interaction: {
-                            mode: 'y',
-                            intersect: false,
+                            // Esta combinación exacta agrupa todas las escuelas en el tooltip
+                            mode: 'index',
+                            axis: 'y',
+                            intersect: false
                         },
                         scales: {
                             x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
