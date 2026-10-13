@@ -53,36 +53,65 @@
         };
 
         async function renderChart() {
-            const querySnapshot = await getDocs(collection(db, "schools"));
-            const schoolsData = [];
-            
-            querySnapshot.forEach((doc) => {
-                schoolsData.push(doc.data());
-            });
+            try {
+                const querySnapshot = await getDocs(collection(db, "schools"));
+                const schoolsData = [];
+                
+                querySnapshot.forEach((doc) => {
+                    schoolsData.push(doc.data());
+                });
 
-            // Ordenamos los datos alfabéticamente
-            schoolsData.sort((a, b) => a.name.localeCompare(b.name));
+                // Ordenamos los datos alfabéticamente
+                schoolsData.sort((a, b) => a.name.localeCompare(b.name));
 
-            const ctx = document.getElementById('benchmarkChart').getContext('2d');
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['UX Web e Identidad', 'Promesa de Valor', 'Engagement Redes', 'Reputación Empleadores', 'Autoridad SEO'],
-                    datasets: schoolsData.map(school => ({
-                        label: school.name,
-                        data: [
-                            school.metrics.uxWeb, 
-                            school.metrics.promesaValor, 
-                            school.metrics.engagementRedes, 
-                            school.metrics.reputacionEmpleadores, 
-                            school.metrics.autoridadSeo
-                        ],
-                        // Si el color viene de Firebase lo usa, si no, usa nuestra paleta de respaldo, o gris por defecto.
-                        backgroundColor: school.brandColor || colorPalette[school.name] || '#94a3b8',
-                        borderWidth: 0,
-                        borderRadius: 4
-                    }))
-                },
-                options: {
-                    indexAxis: 'y',
+                const ctx = document.getElementById('benchmarkChart').getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['UX Web e Identidad', 'Promesa de Valor', 'Engagement Redes', 'Reputación Empleadores', 'Autoridad SEO'],
+                        datasets: schoolsData.map(school => ({
+                            label: school.name,
+                            data: [
+                                school.metrics.uxWeb, 
+                                school.metrics.promesaValor, 
+                                school.metrics.engagementRedes, 
+                                school.metrics.reputacionEmpleadores, 
+                                school.metrics.autoridadSeo
+                            ],
+                            backgroundColor: school.brandColor || colorPalette[school.name] || '#94a3b8',
+                            borderWidth: 0,
+                            borderRadius: 4
+                        }))
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        interaction: {
+                            mode: 'y',
+                            intersect: false,
+                        },
+                        scales: {
+                            x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
+                            y: { grid: { display: false }, ticks: { color: '#e2e8f0', font: { size: 14 } } }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#f8fafc', font: { size: 13 } } },
+                            tooltip: { 
+                                backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+                                titleColor: '#38bdf8', 
+                                bodyColor: '#f1f5f9', 
+                                padding: 12
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error cargando la gráfica:", error);
+            }
+        }
+
+        renderChart();
+    </script>
+</body>
+</html>
