@@ -3,33 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benchmarking de Hospitalidad | Top 10 Global vs Anáhuac</title>
+    <title>Benchmarking de Hospitalidad | Resultado y Construcción de Variables</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-[#1b2838] text-white p-8 font-sans min-h-screen">
+<body class="bg-[#1b2838] text-white p-6 md:p-8 font-sans min-h-screen">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 border-b border-slate-700 pb-4">
+    <div class="max-w-6xl mx-auto space-y-10">
+        <!-- Encabezado Principal -->
+        <header class="border-b border-slate-700 pb-4">
             <h1 class="text-3xl font-bold text-gray-100">Análisis de Posicionamiento Global 2026</h1>
-            <p class="text-slate-400 mt-2">Comparativa de métricas de branding: Líderes Globales vs. Universidad Anáhuac Cancún</p>
+            <p class="text-slate-400 mt-2">Comparativa de métricas de branding y construcción metodológica por subcategorías: Líderes Globales vs. Universidad Anáhuac Cancún</p>
         </header>
 
-        <!-- Contenedor de la gráfica -->
-        <div class="bg-[#2a475e] p-6 rounded-lg shadow-lg relative">
-            <canvas id="benchmarkChart" height="120"></canvas>
-        </div>
-        
-        <div class="mt-4 text-center">
-            <p class="text-xs text-slate-500 font-semibold tracking-widest uppercase">Haz clic en las leyendas superiores para filtrar escuelas</p>
-        </div>
+        <!-- SECCIÓN 1: Gráfica Principal -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xl font-semibold text-sky-400">1. Resultado General por Variable (0 - 100 pts)</h2>
+                <span class="text-xs text-slate-400 uppercase tracking-wider">Haz clic en las leyendas para filtrar escuelas</span>
+            </div>
+            <div class="bg-[#2a475e] p-6 rounded-lg shadow-lg relative">
+                <canvas id="benchmarkChart" height="115"></canvas>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: Desglose Interactivo por Subcategorías -->
+        <section class="pt-4 border-t border-slate-700">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-semibold text-sky-400">2. Cómo se Construye Cada Variable (Desglose de Subcategorías)</h2>
+                    <p class="text-sm text-slate-300 mt-1">Selecciona una categoría para inspeccionar los pilares internos que suman su calificación sobre 100 puntos.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <label for="categorySelect" class="text-sm font-medium text-slate-300 whitespace-nowrap">Variable a desglosar:</label>
+                    <select id="categorySelect" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 font-semibold">
+                        <option value="UX Web e Identidad">UX Web e Identidad</option>
+                        <option value="Promesa de Valor">Promesa de Valor</option>
+                        <option value="Engagement Redes">Engagement Redes</option>
+                        <option value="Reputación Empleadores">Reputación Empleadores</option>
+                        <option value="Autoridad SEO">Autoridad SEO</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tarjetas dinámicas con los pesos de la variable seleccionada -->
+            <div id="weightCards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
+
+            <!-- Gráficas Secundarias: Barras Apiladas (Puntos) + Radar (% Eficiencia) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Construcción en Puntos Acumulados -->
+                <div class="lg:col-span-7 bg-[#2a475e] p-6 rounded-lg shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-100 mb-1">Suma de Puntos Ponderados (Construcción del Puntaje)</h3>
+                        <p class="text-xs text-slate-300 mb-4">Cada bloque representa los puntos reales que aporta el sub-pilar al puntaje total de la variable.</p>
+                    </div>
+                    <div class="relative w-full">
+                        <canvas id="stackedSubChart" height="210"></canvas>
+                    </div>
+                </div>
+
+                <!-- Radar de Cumplimiento Relativo (%) -->
+                <div class="lg:col-span-5 bg-[#2a475e] p-6 rounded-lg shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-100 mb-1">Eficiencia Relativa por Sub-pilar (0% - 100%)</h3>
+                        <p class="text-xs text-slate-300 mb-2">Porcentaje de logro respecto al puntaje máximo posible de cada subcategoría.</p>
+                    </div>
+                    <div class="relative w-full">
+                        <canvas id="radarSubChart" height="230"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Tus credenciales de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAs9sSEhoYgaNQ6jODGMh73OZfB4Lfq46g",
             authDomain: "escuelas-de-hospitalidad.firebaseapp.com",
@@ -42,79 +92,277 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Paleta de colores locales
         const colorPalette = {
-            "EHL": "#3b82f6",          // Azul
-            "Les Roches": "#8b5cf6",   // Morado
-            "SHMS": "#10b981",         // Verde
-            "Anáhuac Cancún": "#f97316", // Naranja
-            "César Ritz": "#0ea5e9",   // Celeste
-            "UNLV": "#ef4444"          // Rojo
+            "Anáhuac Cancún": "#f97316",
+            "César Ritz": "#0ea5e9",
+            "EHL": "#3b82f6",
+            "Les Roches": "#8b5cf6",
+            "SHMS": "#10b981",
+            "UNLV": "#ef4444"
         };
 
-        async function renderChart() {
+        // Matriz metodológica de subcategorías que construyen cada variable
+        const breakdownData = {
+            "UX Web e Identidad": {
+                pillars: [
+                    { name: "Rendimiento Técnico", weight: 30, desc: "Core Web Vitals y velocidad de carga (<2.5s)" },
+                    { name: "Arquitectura Info", weight: 30, desc: "Navegación intuitiva y regla de pocos clics" },
+                    { name: "Identidad y UI Premium", weight: 25, desc: "Diseño editorial, espacio en blanco y video" },
+                    { name: "Adaptabilidad Móvil", weight: 15, desc: "Experiencia responsiva sin fricción en smartphones" }
+                ],
+                scores: {
+                    "Anáhuac Cancún": [26, 26, 18, 15],
+                    "César Ritz":     [25, 25, 21, 14],
+                    "EHL":            [28, 28, 24, 15],
+                    "Les Roches":     [27, 26, 23, 14],
+                    "SHMS":           [26, 26, 22, 14],
+                    "UNLV":           [26, 25, 17, 14]
+                }
+            },
+            "Promesa de Valor": {
+                pillars: [
+                    { name: "Claridad Diferenciador", weight: 35, desc: "Comunicación del valor único en los primeros 5s" },
+                    { name: "Visibilidad Académica", weight: 30, desc: "Acceso directo al plan de estudios y especialidades" },
+                    { name: "Proyección Profesional", weight: 20, desc: "Evidencia de empleabilidad, ROI y casos de éxito" },
+                    { name: "Transparencia Costos", weight: 15, desc: "Claridad en procesos de admisión, becas y colegiaturas" }
+                ],
+                scores: {
+                    "Anáhuac Cancún": [33, 29, 19, 14],
+                    "César Ritz":     [31, 26, 18, 12],
+                    "EHL":            [34, 27, 20, 11],
+                    "Les Roches":     [32, 26, 19, 11],
+                    "SHMS":           [32, 27, 18, 12],
+                    "UNLV":           [29, 27, 16, 13]
+                }
+            },
+            "Engagement Redes": {
+                pillars: [
+                    { name: "Tasa Interacción", weight: 40, desc: "Engagement rate real (likes, guardados, compartidos)" },
+                    { name: "Calidad y Frecuencia", weight: 30, desc: "Producción audiovisual en Reels/TikTok y constancia" },
+                    { name: "Sentido Comunidad", weight: 20, desc: "Contenido orgánico de vida en campus y alumnos" },
+                    { name: "Diversidad Plataformas", weight: 10, desc: "Adaptación de formato en Instagram, TikTok y LinkedIn" }
+                ],
+                scores: {
+                    "Anáhuac Cancún": [34, 25, 17, 9],
+                    "César Ritz":     [30, 24, 16, 8],
+                    "EHL":            [35, 27, 17, 9],
+                    "Les Roches":     [29, 23, 15, 8],
+                    "SHMS":           [32, 25, 17, 8],
+                    "UNLV":           [37, 27, 19, 9]
+                }
+            },
+            "Reputación Empleadores": {
+                pillars: [
+                    { name: "Alianzas y Colocación", weight: 40, desc: "Convenios con cadenas AAA y tasa de empleo al egresar" },
+                    { name: "Rankings Globales", weight: 30, desc: "Posicionamiento histórico en listados como QS Hospitality" },
+                    { name: "Red de Exalumnos", weight: 20, desc: "Capítulos activos de alumni en puestos directivos" },
+                    { name: "Educación Ejecutiva", weight: 10, desc: "Capacitación corporativa y diplomados a empresas" }
+                ],
+                scores: {
+                    "Anáhuac Cancún": [38, 26, 19, 9],
+                    "César Ritz":     [36, 27, 18, 9],
+                    "EHL":            [39, 30, 20, 9],
+                    "Les Roches":     [38, 29, 19, 9],
+                    "SHMS":           [38, 28, 19, 9],
+                    "UNLV":           [36, 26, 18, 8]
+                }
+            },
+            "Autoridad SEO": {
+                pillars: [
+                    { name: "Domain Authority", weight: 40, desc: "Fuerza estructural del dominio web en buscadores" },
+                    { name: "Tráfico Orgánico", weight: 30, desc: "Volumen mensual de visitas captadas sin pauta pagada" },
+                    { name: "Keywords Posicionadas", weight: 20, desc: "Términos clave en Top 10 de resultados de Google" },
+                    { name: "Perfil Backlinks", weight: 10, desc: "Enlaces entrantes desde medios, gobierno y sector" }
+                ],
+                scores: {
+                    "Anáhuac Cancún": [39, 30, 19, 10],
+                    "César Ritz":     [28, 21, 14, 7],
+                    "EHL":            [34, 25, 17, 9],
+                    "Les Roches":     [32, 24, 16, 8],
+                    "SHMS":           [30, 22, 15, 8],
+                    "UNLV":           [36, 27, 18, 9]
+                }
+            }
+        };
+
+        const pillarColors = ["#38bdf8", "#fb923c", "#34d399", "#a78bfa"];
+        let stackedChartInstance = null;
+        let radarChartInstance = null;
+
+        // Renderizar Gráfica Principal desde Firebase (con respaldo local instantáneo)
+        async function renderMainChart() {
+            let schoolsData = [];
             try {
                 const querySnapshot = await getDocs(collection(db, "schools"));
-                const schoolsData = [];
-                
-                querySnapshot.forEach((doc) => {
-                    schoolsData.push(doc.data());
-                });
+                querySnapshot.forEach((doc) => schoolsData.push(doc.data()));
+            } catch (error) {
+                console.warn("Usando respaldo local:", error);
+            }
 
-                // Ordenamos los datos alfabéticamente
-                schoolsData.sort((a, b) => a.name.localeCompare(b.name));
+            if (schoolsData.length === 0) {
+                schoolsData = Object.keys(colorPalette).map(name => ({
+                    name,
+                    metrics: {
+                        uxWeb: breakdownData["UX Web e Identidad"].scores[name].reduce((a,b)=>a+b,0),
+                        promesaValor: breakdownData["Promesa de Valor"].scores[name].reduce((a,b)=>a+b,0),
+                        engagementRedes: breakdownData["Engagement Redes"].scores[name].reduce((a,b)=>a+b,0),
+                        reputacionEmpleadores: breakdownData["Reputación Empleadores"].scores[name].reduce((a,b)=>a+b,0),
+                        autoridadSeo: breakdownData["Autoridad SEO"].scores[name].reduce((a,b)=>a+b,0)
+                    }
+                }));
+            }
 
-                const ctx = document.getElementById('benchmarkChart').getContext('2d');
-                
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['UX Web e Identidad', 'Promesa de Valor', 'Engagement Redes', 'Reputación Empleadores', 'Autoridad SEO'],
-                        datasets: schoolsData.map(school => ({
-                            label: school.name,
-                            data: [
-                                school.metrics.uxWeb, 
-                                school.metrics.promesaValor, 
-                                school.metrics.engagementRedes, 
-                                school.metrics.reputacionEmpleadores, 
-                                school.metrics.autoridadSeo
-                            ],
-                            // Limpiamos los espacios del nombre con trim() y forzamos el color de la paleta
-                            backgroundColor: colorPalette[school.name.trim()] || '#94a3b8',
-                            borderWidth: 0,
-                            borderRadius: 4
-                        }))
+            schoolsData.sort((a, b) => a.name.localeCompare(b.name));
+            const ctx = document.getElementById('benchmarkChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['UX Web e Identidad', 'Promesa de Valor', 'Engagement Redes', 'Reputación Empleadores', 'Autoridad SEO'],
+                    datasets: schoolsData.map(school => ({
+                        label: school.name.trim(),
+                        data: [
+                            school.metrics.uxWeb,
+                            school.metrics.promesaValor,
+                            school.metrics.engagementRedes,
+                            school.metrics.reputacionEmpleadores,
+                            school.metrics.autoridadSeo
+                        ],
+                        backgroundColor: colorPalette[school.name.trim()] || '#94a3b8',
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }))
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    interaction: { mode: 'index', axis: 'y', intersect: false },
+                    scales: {
+                        x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#e2e8f0', font: { size: 14 } } }
                     },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        interaction: {
-                            // Esta combinación exacta agrupa todas las escuelas en el tooltip
-                            mode: 'index',
-                            axis: 'y',
-                            intersect: false
-                        },
-                        scales: {
-                            x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
-                            y: { grid: { display: false }, ticks: { color: '#e2e8f0', font: { size: 14 } } }
-                        },
-                        plugins: {
-                            legend: { labels: { color: '#f8fafc', font: { size: 13 } } },
-                            tooltip: { 
-                                backgroundColor: 'rgba(15, 23, 42, 0.95)', 
-                                titleColor: '#38bdf8', 
-                                bodyColor: '#f1f5f9', 
-                                padding: 12
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', font: { size: 13 } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#38bdf8',
+                            bodyColor: '#f1f5f9',
+                            padding: 12
+                        }
+                    }
+                }
+            });
+        }
+
+        // Renderizar Desglose de la Categoría Seleccionada
+        function updateBreakdownView(categoryName) {
+            const info = breakdownData[categoryName];
+            const schools = Object.keys(info.scores);
+
+            // 1. Actualizar tarjetas de ponderación
+            const cardsContainer = document.getElementById('weightCards');
+            cardsContainer.innerHTML = info.pillars.map((p, idx) => `
+                <div class="bg-[#2a475e] border-l-4 p-4 rounded-lg shadow" style="border-color: ${pillarColors[idx]}">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-300">${p.name}</span>
+                        <span class="text-lg font-extrabold" style="color: ${pillarColors[idx]}">${p.weight}%</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">${p.desc}</p>
+                </div>
+            `).join('');
+
+            // 2. Actualizar Gráfica de Barras Apiladas (Construcción en puntos)
+            const stackedCtx = document.getElementById('stackedSubChart').getContext('2d');
+            if (stackedChartInstance) stackedChartInstance.destroy();
+
+            stackedChartInstance = new Chart(stackedCtx, {
+                type: 'bar',
+                data: {
+                    labels: schools,
+                    datasets: info.pillars.map((pillar, idx) => ({
+                        label: `${pillar.name} (máx. ${pillar.weight} pts)`,
+                        data: schools.map(s => info.scores[s][idx]),
+                        backgroundColor: pillarColors[idx],
+                        borderColor: '#1b2838',
+                        borderWidth: 1,
+                        borderRadius: 2
+                    }))
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    interaction: { mode: 'index', axis: 'y', intersect: false },
+                    scales: {
+                        x: { stacked: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#94a3b8' } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#f8fafc', font: { size: 13 } } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e2e8f0', font: { size: 11 } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#38bdf8',
+                            bodyColor: '#f1f5f9',
+                            padding: 12,
+                            callbacks: {
+                                footer: (items) => {
+                                    const total = items.reduce((sum, item) => sum + item.parsed.x, 0);
+                                    return `Puntaje Total Construido: ${total} / 100 pts`;
+                                }
                             }
                         }
                     }
-                });
-            } catch (error) {
-                console.error("Error cargando la gráfica:", error);
-            }
+                }
+            });
+
+            // 3. Actualizar Gráfica de Radar (% de cumplimiento sobre el peso máximo de cada pilar)
+            const radarCtx = document.getElementById('radarSubChart').getContext('2d');
+            if (radarChartInstance) radarChartInstance.destroy();
+
+            radarChartInstance = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: info.pillars.map(p => p.name),
+                    datasets: schools.map(school => ({
+                        label: school,
+                        data: info.scores[school].map((val, idx) => Math.round((val / info.pillars[idx].weight) * 100)),
+                        borderColor: colorPalette[school],
+                        backgroundColor: colorPalette[school] + '22',
+                        pointBackgroundColor: colorPalette[school],
+                        borderWidth: school === "Anáhuac Cancún" ? 3 : 1.5
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            min: 50,
+                            max: 100,
+                            angleLines: { color: '#475569' },
+                            grid: { color: '#374151' },
+                            pointLabels: { color: '#e2e8f0', font: { size: 11 } },
+                            ticks: { backdropColor: 'transparent', color: '#94a3b8', stepSize: 10 }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', font: { size: 11 } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.r}% de eficiencia en el pilar`
+                            }
+                        }
+                    }
+                }
+            });
         }
 
-        renderChart();
+        // Inicializar panel
+        document.getElementById('categorySelect').addEventListener('change', (e) => {
+            updateBreakdownView(e.target.value);
+        });
+
+        renderMainChart();
+        updateBreakdownView("UX Web e Identidad");
     </script>
 </body>
 </html>
