@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benchmark de Hospitalidad | Resultado y Construcción de Variables</title>
+    <title>Benchmark | Universidad Anáhuac Cancún</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -27,11 +27,11 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 2: Desglose Interactivo por Subcategorías -->
+        <!-- SECCIÓN 2: Desglose de Variables -->
         <section class="pt-4 border-t border-slate-700">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h2 class="text-xl font-semibold text-sky-400">2. Desglose de Subcategorías</h2>
+                    <h2 class="text-xl font-semibold text-sky-400">2. Desglose de Variables</h2>
                     <p class="text-sm text-slate-300 mt-1">Selecciona una categoría para inspeccionar los pilares internos que suman su calificación sobre 100 puntos.</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -74,6 +74,52 @@
                 </div>
             </div>
         </section>
+
+        <!-- SECCIÓN 3: Copiloto Analítico con Gemini -->
+        <section class="pt-8 border-t border-slate-700">
+            <div class="mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-sky-400 text-xl font-bold">✦</span>
+                    <h2 class="text-xl font-semibold text-sky-400">3. Copiloto Analítico Gemini</h2>
+                </div>
+                <p class="text-sm text-slate-300 mt-1">Indaga sobre las brechas competitivas, la construcción de variables, estrategias comerciales o capital de marca (Brand Equity).</p>
+            </div>
+
+            <div class="bg-[#2a475e] rounded-lg shadow-lg border border-slate-600 overflow-hidden">
+                <!-- Botones de preguntas rápidas sugeridas -->
+                <div class="bg-slate-800/60 p-3 border-b border-slate-700 flex flex-wrap gap-2 items-center">
+                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider mr-1">Explorar:</span>
+                    <button onclick="sendQuickPrompt('¿Cómo puede Anáhuac Cancún aprovechar su 98 en SEO para mejorar la conversión comercial frente a las escuelas suizas?')" class="text-xs bg-slate-700 hover:bg-sky-600 text-slate-200 hover:text-white px-3 py-1.5 rounded-full transition">
+                        💡 Estrategia comercial SEO + UX
+                    </button>
+                    <button onclick="sendQuickPrompt('¿En qué subcategorías específicas le gana EHL a Anáhuac Cancún y cómo acortar esa brecha?')" class="text-xs bg-slate-700 hover:bg-sky-600 text-slate-200 hover:text-white px-3 py-1.5 rounded-full transition">
+                        📊 Brecha Anáhuac vs. EHL
+                    </button>
+                    <button onclick="sendQuickPrompt('Explica cómo se refleja el Brand Equity en estos resultados para defender el presupuesto de marketing.')" class="text-xs bg-slate-700 hover:bg-sky-600 text-slate-200 hover:text-white px-3 py-1.5 rounded-full transition">
+                        🎯 Argumento directivo (Brand Equity)
+                    </button>
+                </div>
+
+                <!-- Historial de conversación -->
+                <div id="chatHistory" class="p-6 space-y-4 h-80 overflow-y-auto text-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-400 flex items-center justify-center text-sky-400 font-bold shrink-0">✦</div>
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-3.5 text-slate-200 max-w-3xl leading-relaxed">
+                            Hola. Soy <strong>Gemini</strong>, tu copiloto analítico. Conozco el desglose exacto de las categorías y subcategorías de <strong>Anáhuac Cancún, EHL, Les Roches, SHMS, César Ritz y UNLV</strong>. ¿Qué aspecto del análisis te gustaría profundizar?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de escritura -->
+                <form id="chatForm" class="p-4 bg-slate-800/80 border-t border-slate-700 flex gap-3">
+                    <input id="userQuestion" type="text" placeholder="Escribe tu pregunta sobre los datos, subcategorías o estrategias comerciales..." 
+                        class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-sky-400" required />
+                    <button id="sendBtn" type="submit" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-5 py-2.5 rounded-lg text-sm transition shrink-0">
+                        Preguntar a Gemini
+                    </button>
+                </form>
+            </div>
+        </section>
     </div>
 
     <script type="module">
@@ -101,7 +147,6 @@
             "UNLV": "#ef4444"
         };
 
-        // Matriz metodológica de subcategorías que construyen cada variable
         const breakdownData = {
             "UX Web e Identidad": {
                 pillars: [
@@ -189,7 +234,6 @@
         let stackedChartInstance = null;
         let radarChartInstance = null;
 
-        // Renderizar Gráfica Principal desde Firebase (con respaldo local instantáneo)
         async function renderMainChart() {
             let schoolsData = [];
             try {
@@ -254,12 +298,10 @@
             });
         }
 
-        // Renderizar Desglose de la Categoría Seleccionada
         function updateBreakdownView(categoryName) {
             const info = breakdownData[categoryName];
             const schools = Object.keys(info.scores);
 
-            // 1. Actualizar tarjetas de ponderación
             const cardsContainer = document.getElementById('weightCards');
             cardsContainer.innerHTML = info.pillars.map((p, idx) => `
                 <div class="bg-[#2a475e] border-l-4 p-4 rounded-lg shadow" style="border-color: ${pillarColors[idx]}">
@@ -271,7 +313,6 @@
                 </div>
             `).join('');
 
-            // 2. Actualizar Gráfica de Barras Apiladas (Construcción en puntos)
             const stackedCtx = document.getElementById('stackedSubChart').getContext('2d');
             if (stackedChartInstance) stackedChartInstance.destroy();
 
@@ -314,7 +355,6 @@
                 }
             });
 
-            // 3. Actualizar Gráfica de Radar (% de cumplimiento sobre el peso máximo de cada pilar)
             const radarCtx = document.getElementById('radarSubChart').getContext('2d');
             if (radarChartInstance) radarChartInstance.destroy();
 
@@ -356,7 +396,89 @@
             });
         }
 
-        // Inicializar panel
+        // --- LÓGICA DEL COPILOTO ANALÍTICO GEMINI ---
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuMtoMkypmRjwDbfFrBWtcbpNEdILtzRfy1n0CXrfZCgUi8QJ9nC1eK367MhBY7wdG/exec";
+        let chatMemory = [];
+
+        const systemContext = `
+Eres Gemini, actuando como Copiloto Analítico Senior de Inteligencia de Negocios integrado en el panel de Benchmarking de Hospitalidad 2026 de la Universidad Anáhuac Cancún.
+Tu objetivo es ayudar al usuario a interpretar los datos, cruzar subcategorías, evaluar el Brand Equity (Capital de Marca) y proponer estrategias comerciales accionables.
+
+DATOS OFICIALES DEL ESTUDIO (JSON):
+${JSON.stringify(breakdownData)}
+
+CONTEXTO ESTRATÉGICO CLAVE:
+- Anáhuac Cancún y UNLV son universidades multidisciplinarias (lo que impulsa su Autoridad SEO: Anáhuac 98, UNLV 90).
+- EHL, Les Roches, SHMS y César Ritz son escuelas suizas hiperespecializadas ("boutique"), enfocadas en Identidad UI Premium y Reputación con Empleadores.
+- Diferenciadores: Anáhuac Cancún (ROI, transparencia y ubicación en el epicentro turístico de Cancún/Riviera Maya), EHL (prestigio histórico y red global), Les Roches (innovación y emprendimiento), SHMS (tradición hotelera suiza), César Ritz (negocios y alta gastronomía), UNLV (mega-operaciones en Las Vegas).
+
+REGLAS DE RESPUESTA:
+1. Responde siempre en español con tono ejecutivo, claro y analítico.
+2. Cita los puntajes exactos de las categorías y subcategorías cuando compares escuelas.
+3. Si el usuario pide recomendaciones comerciales o de branding, conecta los números con acciones concretas.
+4. Mantén las respuestas concisas (2 a 3 párrafos o viñetas puntuales).`;
+
+        const chatHistoryEl = document.getElementById('chatHistory');
+        const chatForm = document.getElementById('chatForm');
+        const userQuestionInput = document.getElementById('userQuestion');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function appendMessage(sender, text) {
+            const isAI = sender === 'ai';
+            const formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            const msgHTML = `
+                <div class="flex items-start gap-3 ${isAI ? '' : 'justify-end'}">
+                    ${isAI ? '<div class="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-400 flex items-center justify-center text-sky-400 font-bold shrink-0">✦</div>' : ''}
+                    <div class="${isAI ? 'bg-slate-800/90 border border-slate-700 text-slate-200' : 'bg-sky-600 text-white'} rounded-lg p-3.5 max-w-3xl leading-relaxed">
+                        ${formattedText}
+                    </div>
+                </div>`;
+            chatHistoryEl.insertAdjacentHTML('beforeend', msgHTML);
+            chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
+        }
+
+        async function askGemini(questionText) {
+            appendMessage('user', questionText);
+            userQuestionInput.value = '';
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Analizando...';
+
+            chatMemory.push({ role: "user", parts: [{ text: questionText }] });
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        systemPrompt: systemContext,
+                        history: chatMemory
+                    })
+                });
+                const data = await response.json();
+                const aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No pude procesar la respuesta. Verifica el enlace de tu Apps Script.";
+                
+                chatMemory.push({ role: "model", parts: [{ text: aiReply }] });
+                appendMessage('ai', aiReply);
+            } catch (err) {
+                appendMessage('ai', "⚠️ Recuerda insertar la URL de tu Google Apps Script en la variable APPS_SCRIPT_URL.");
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Preguntar a Gemini';
+            }
+        }
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const q = userQuestionInput.value.trim();
+            if (q) askGemini(q);
+        });
+
+        window.sendQuickPrompt = (promptText) => {
+            askGemini(promptText);
+        };
+
         document.getElementById('categorySelect').addEventListener('change', (e) => {
             updateBreakdownView(e.target.value);
         });
